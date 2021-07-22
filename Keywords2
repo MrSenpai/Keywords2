@@ -1,0 +1,224 @@
+/*
+	Moises Cardona
+
+	07/20/2021
+	Keywords 2: A CIA word-guessing simulation.
+*/
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <ctime>
+#include <cctype>
+
+using std::cout;
+using std::cin;
+using std::endl;
+
+using namespace std;
+
+//Prototypes
+string askText(string prompt);
+void intro();
+void instructions();
+
+void mainCode(string name);
+
+
+int main()
+{
+	intro();	//Call for the brief intro
+	string username = askText("Please input your name, recruit.");
+	instructions();	//Call the instructions 
+
+	mainCode(username); //Call the rest of the code
+
+
+	return 0;
+}
+
+//Definition to get string inputs from player
+string askText(string prompt)
+{
+	string text;
+	cout << prompt;
+	cin >> text;
+	return text;
+}
+
+void intro()
+{
+	// Display Title of the program to the user
+	cout << "Welcome to the CIA codebreaker test simulation. This is part of your CIA recruitment training." << endl;
+}
+
+void instructions()
+{
+	// Display an overview of what Keywords II is to the recruit 
+	cout << "In this simulation recruits will correctly guess 3 hidden words at a time." << endl;
+
+	// Display directions to the recruit on how to use Keywords
+	cout << "--- INSTRUCTIONS ---" << endl;
+	cout << "Press any letter key to input an answer." << endl;
+	cout << "\tIf the guess is correct, that letter will be displayed at the location of the hidden word." << endl;
+	cout << "\tIf the guess is incorrect, that letter won't be displayed." << endl;
+	cout << "You have 10 attempts per word; you must guess 3 out of 3 words to pass the test." << endl;
+	cout << "Inputing an already guessed word won't count as an attempt, but please refrain from doing so." << endl;
+}
+
+//Execute the main code
+void mainCode(string name)
+{
+	// Create a collection of 10 words you had written down manually
+	vector<string> words;
+	words.push_back("ESPIONAGE");
+	words.push_back("TERMINATION");
+	words.push_back("INTEL");
+	words.push_back("COVERT");
+	words.push_back("DELIVER");
+	words.push_back("OBSERVE");
+	words.push_back("ALERT");
+	words.push_back("VIGILANT");
+	words.push_back("CODE");
+	words.push_back("BREAK");
+
+
+	// Create an int var to count the number of simulations being run starting at 1
+	int simNum = 1;
+
+
+	// Pick 3 new random words from your collection as the secret code word the recruit has to guess. 
+	//Randomize list:
+	srand(static_cast<unsigned int>(time(0)));
+	random_shuffle(words.begin(), words.end());
+	char again = 'y';
+	int simCount = 0;
+	int trials = 0;	//Determines whether recruit passes or fails the test
+
+	do {
+		for (int i = 0; i < 3; i++)
+		{
+			string currentWord = words[i];
+			const int MAX_WRONG = 10;	//Maximum number of incorrect guesses allowed
+			int wrongGuess = 0;
+			string soFar(currentWord.size(), '_');
+			string used = "";
+
+
+			// While recruit hasn’t made too many incorrect guesses and hasn’t guessed the secret word
+			while ((wrongGuess < MAX_WRONG) && (soFar != currentWord))
+			{
+				//     Tell recruit how many incorrect guesses he or she has left
+				cout << "\n\nYou have " << (MAX_WRONG - wrongGuess);
+				cout << " incorrect guesses left.\n";
+				//     Show recruit the letters he or she has guessed
+				cout << "\nYou’ve used the following letters:\n" << used << endl;
+				//     Show player how much of the secret word he or she has guessed
+				cout << "\nSo far, the word is:\n" << soFar << endl;
+
+
+				//     Get recruit's next guess
+				char guess;
+				cout << "\n\nEnter your guess: ";
+				cin >> guess;
+				guess = toupper(guess); //make uppercase word in uppercase
+
+				//     While recruit has entered a letter that he or she has already guessed
+				//		Get recruit ’s guess
+				while (used.find(guess) != string::npos)
+				{
+					cout << "\nYou’ve already guessed " << guess << endl;
+					cout << "Enter your guess: ";
+					cin >> guess;
+					guess = toupper(guess);
+				}
+
+				//     Add the new guess to the group of used letters
+				used += guess;
+
+				//     If the guess is in the secret word
+				//		Tell the recruit the guess is correct
+				if (currentWord.find(guess) != string::npos)
+				{
+					cout << "\nThat’s right! " << guess << " is in the word.\n";
+
+
+					//          Update the word guessed so far with the new letter
+					for (unsigned int i = 0; i < currentWord.length(); ++i)
+					{
+						if (currentWord[i] == guess)
+						{
+							soFar[i] = guess;
+						}
+					}
+				}
+
+				//          Tell the recruit the guess is incorrect
+				//          Increment the number of incorrect guesses the recruit has made
+				else
+				{
+					cout << "Sorry, " << guess << " isn’t in the word.\n";
+					++wrongGuess;
+				}
+
+			}
+
+
+
+
+
+
+
+
+			// If the recruit has made too many incorrect guesses
+			//     Tell the recruit that he or she has failed the Keywords II course.
+			// Otherwise
+			//     Congratulate the recruit on guessing the secret words
+			if (wrongGuess == MAX_WRONG)
+			{
+				cout << "\nSorry, you failed to guess the hidden word." << endl;
+
+			}
+			else
+			{
+				cout << "\nGood! You guess the hidden word." << endl;
+				trials++;	//Add +1 for each correctly guessed word
+			}
+
+		}
+
+		//Tell recruit whether he passed the test or not according to the number of correct guesses
+		if (trials < 3)
+			cout << "\nUnfortunately, you failed to pass the simulation test. You did not reach CIA expectations." << endl;
+		else
+		{
+			cout << "\nYou passed the test. Congratulations, agent." << endl;
+			trials = 0;		//Reset the number of corrected guesses back to zero for replayability
+		}
+
+		// Ask the recruit if they would like to run the simulation again using a do while loop
+		cout << "Do you want to retake the test? (y or n)" << endl;
+		cin >> again;
+
+
+		// If the recruit wants to run the simulation again
+		//     Increment the number of simulations ran counter
+		simCount++;
+
+		// Display the simulation # is starting to the recruit.
+		if (simCount == 1)
+			cout << "/n/nYou have run " << simCount << " simulation." << endl;
+		else
+			cout << "/n/nYou have run " << simCount << " simulations." << endl;
+
+	} while (again == 'y');
+
+
+
+	// Otherwise 
+		//     Display End of Simulations to the recruit
+	cout << "The simulation has been completed." << endl;
+	//     Pause the Simulation with press any key to continue
+	system("pause");
+}
